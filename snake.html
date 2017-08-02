@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <!-- Place holder to the Game Scene -->
+        <canvas id="game_scene" width="400" height="400"></canvas>
+        
+        <!-- JavaScript logic for the Game -->
+        <script>
+            // Variables for the Game
+            px = py = 10; // Snake Initial Position (Head Only)
+            xv = yv =  0; // Snake Velocity Values
+            gs = tc = 20; // Grid Size, Tile Count
+            ax = ay = 15; // Apple Initial Position
+            trail = []; // Used to hold the Position of the Snake
+            tail = 5; // Initial Length of the Snake
+
+            /*
+                Grab Canvas from HTML.
+                Grab the 2D Context from the Canvas.
+                Add an EventListener for when a key is Pressed.
+                Call the Game Function every 100 milliseconds
+            */
+            window.onload=function() {
+                canv=document.getElementById("game_scene");
+                ctx=canv.getContext("2d");
+                document.addEventListener("keydown", keyPush);
+                setInterval(game, 100);
+            }
+            
+            // Change the velocity of the Snake based on the key pressed 
+            function keyPush(evt) {
+                switch(evt.keyCode) {
+                    case 37: // Left Arrow
+                        xv = -1;
+                        yv =  0;
+                        break;
+                    case 38: // Up Arrow
+                        xv =  0;
+                        yv = -1;
+                        break;
+                    case 39: // Right Arrow
+                        xv = 1;
+                        yv = 0;
+                        break;
+                    case 40: // Down Arrow
+                        xv = 0;
+                        yv = 1;
+                        break;
+                }
+            }
+
+            // Logic behind the Game
+            function game() {
+
+                // Fill the Canvas in Black
+                ctx.fillStyle="black";
+                ctx.fillRect(0,0,canv.width,canv.height);
+                
+                // Move the Snake according the Current Velocities
+                px += xv;
+                py += yv;
+
+                // Handle cases when the Snake touches the edges
+                if (px < 0) {
+                    px = tc - 1;
+                }
+                if (px > tc - 1) {
+                    px = 0;
+                }
+                if (py < 0) {
+                    py = tc - 1;
+                }
+                if (py > tc - 1) {
+                    py = 0;
+                }
+
+                // Hold the Positions that make the Snake and render them            
+                ctx.fillStyle="lime";
+                for(var i = 0; i < trail.length; i++) {
+                    ctx.fillRect(trail[i].x*gs, trail[i].y*gs, gs-2, gs-2);
+                    if(trail[i].x == px && trail[i].y == py) { // Reset Tail Size if Snake eats itself
+                        tail = 5;
+                    }
+                }
+                
+                // Store new position in Trail
+                trail.push({x:px,y:py});
+                while(trail.length > tail) {
+                    trail.shift();
+                }
+            
+                // When the Snake eats the Apple
+                if(ax==px && ay==py) {
+                    tail++; // Increase Tail
+                    ax=Math.floor(Math.random()*tc); // Reposition Apple
+                    ay=Math.floor(Math.random()*tc);
+                }
+
+                // Render Apple to the Canvas
+                ctx.fillStyle="red";
+                ctx.fillRect(ax*gs,ay*gs,gs-2,gs-2);
+            }
+        </script>
+    </body>
+</html>
